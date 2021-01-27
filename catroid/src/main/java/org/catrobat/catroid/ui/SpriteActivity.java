@@ -58,7 +58,7 @@ import org.catrobat.catroid.stage.TestResult;
 import org.catrobat.catroid.ui.fragment.FormulaEditorFragment;
 import org.catrobat.catroid.ui.recyclerview.dialog.TextInputDialog;
 import org.catrobat.catroid.ui.recyclerview.dialog.dialoginterface.NewItemInterface;
-import org.catrobat.catroid.ui.recyclerview.dialog.textwatcher.NewItemTextWatcher;
+import org.catrobat.catroid.ui.recyclerview.dialog.textwatcher.DuplicateInputTextWatcher;
 import org.catrobat.catroid.ui.recyclerview.fragment.DataListFragment;
 import org.catrobat.catroid.ui.recyclerview.fragment.ListSelectorFragment;
 import org.catrobat.catroid.ui.recyclerview.fragment.LookListFragment;
@@ -88,11 +88,12 @@ import static org.catrobat.catroid.common.FlavoredConstants.LIBRARY_BACKGROUNDS_
 import static org.catrobat.catroid.common.FlavoredConstants.LIBRARY_LOOKS_URL;
 import static org.catrobat.catroid.common.FlavoredConstants.LIBRARY_SOUNDS_URL;
 import static org.catrobat.catroid.stage.TestResult.TEST_RESULT_MESSAGE;
-import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.getTabPositionInSpriteActivity;
-import static org.catrobat.catroid.ui.WebViewActivity.MEDIA_FILE_PATH;
 import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.addTabLayout;
+import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.getTabPositionInSpriteActivity;
+import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.isFragmentWithTablayout;
 import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.loadFragment;
 import static org.catrobat.catroid.ui.SpriteActivityOnTabSelectedListenerKt.removeTabLayout;
+import static org.catrobat.catroid.ui.WebViewActivity.MEDIA_FILE_PATH;
 import static org.catrobat.catroid.visualplacement.VisualPlacementActivity.X_COORDINATE_BUNDLE_ARGUMENT;
 import static org.catrobat.catroid.visualplacement.VisualPlacementActivity.Y_COORDINATE_BUNDLE_ARGUMENT;
 
@@ -124,6 +125,7 @@ public class SpriteActivity extends BaseActivity {
 	public static final int SOUND_FILE = 14;
 
 	public static final int REQUEST_CODE_VISUAL_PLACEMENT = 2019;
+	public static final int EDIT_LOOK = 2020;
 
 	public static final String EXTRA_FRAGMENT_POSITION = "fragmentPosition";
 	public static final String EXTRA_BRICK_HASH = "BRICK_HASH";
@@ -144,6 +146,9 @@ public class SpriteActivity extends BaseActivity {
 	private Sprite currentSprite;
 	private Scene currentScene;
 	private Menu currentMenu;
+	private LookData currentLookData;
+
+	private boolean isUndoMenuItemVisible = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -192,16 +197,28 @@ public class SpriteActivity extends BaseActivity {
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	public void showUndoSpinnerSelection(boolean visible) {
+	public void showUndo(boolean visible) {
 		if (currentMenu != null) {
 			currentMenu.findItem(R.id.menu_undo).setVisible(visible);
 		}
+	}
+
+	public void showUndoMenuItem(boolean visible) {
+		if (currentMenu != null) {
+			currentMenu.findItem(R.id.menu_undo).setVisible(visible);
+		}
+	}
+
+	public void setUndoMenuItemVisibility(boolean isVisible) {
+		isUndoMenuItemVisible = isVisible;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (getCurrentFragment() instanceof ScriptFragment) {
 			menu.findItem(R.id.comment_in_out).setVisible(true);
+		} else if (getCurrentFragment() instanceof LookListFragment) {
+			showUndoMenuItem(isUndoMenuItemVisible);
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -213,6 +230,18 @@ public class SpriteActivity extends BaseActivity {
 
 		if (item.getItemId() == android.R.id.home && isDragAndDropActiveInFragment) {
 			((ScriptFragment) getCurrentFragment()).highlightMovingItem();
+			return true;
+		}
+
+		if (item.getItemId() == R.id.menu_undo && getCurrentFragment() instanceof LookListFragment) {
+			setUndoMenuItemVisibility(false);
+			showUndoMenuItem(isUndoMenuItemVisible);
+			Fragment fragment = getCurrentFragment();
+			if (fragment instanceof LookListFragment && !((LookListFragment) fragment).undo()) {
+				((LookListFragment) fragment).deleteItem(currentLookData);
+				currentLookData.dispose();
+				currentLookData = null;
+			}
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -316,18 +345,22 @@ public class SpriteActivity extends BaseActivity {
 			case LOOK_POCKET_PAINT:
 				uri = new ImportFromPocketPaintLauncher(this).getPocketPaintCacheUri();
 				addLookFromUri(uri);
+				setUndoMenuItemVisibility(true);
 				break;
 			case LOOK_LIBRARY:
 				uri = Uri.fromFile(new File(data.getStringExtra(MEDIA_FILE_PATH)));
 				addLookFromUri(uri);
+				setUndoMenuItemVisibility(true);
 				break;
 			case LOOK_FILE:
 				uri = data.getData();
 				addLookFromUri(uri);
+				setUndoMenuItemVisibility(true);
 				break;
 			case LOOK_CAMERA:
 				uri = new ImportFromCameraLauncher(this).getCacheCameraUri();
 				addLookFromUri(uri);
+				setUndoMenuItemVisibility(true);
 				break;
 			case SOUND_RECORD:
 			case SOUND_FILE:
@@ -402,7 +435,7 @@ public class SpriteActivity extends BaseActivity {
 
 		builder.setHint(getString(R.string.sprite_name_label))
 				.setText(lookDataName)
-				.setTextWatcher(new NewItemTextWatcher<>(currentScene.getSpriteList()))
+				.setTextWatcher(new DuplicateInputTextWatcher<>(currentScene.getSpriteList()))
 				.setPositiveButton(getString(R.string.ok), (TextInputDialog.OnClickListener) (dialog, textInput) -> {
 					Sprite sprite = new Sprite(textInput);
 					currentScene.addSprite(sprite);
@@ -492,6 +525,7 @@ public class SpriteActivity extends BaseActivity {
 			File imageDirectory = new File(currentScene.getDirectory(), IMAGE_DIRECTORY_NAME);
 			File file = StorageOperations.copyUriToDir(getContentResolver(), uri, imageDirectory, lookFileName);
 			LookData look = new LookData(lookDataName, file);
+			this.currentLookData = look;
 			currentSprite.getLookList().add(look);
 			look.getCollisionInformation().calculate();
 			if (onNewLookListener != null) {
@@ -729,7 +763,7 @@ public class SpriteActivity extends BaseActivity {
 		lists.addAll(currentProject.getUserLists());
 		lists.addAll(currentSprite.getUserLists());
 
-		NewItemTextWatcher<UserData> textWatcher = new NewItemTextWatcher<>(variables);
+		DuplicateInputTextWatcher<UserData> textWatcher = new DuplicateInputTextWatcher(variables);
 
 		TextInputDialog.Builder builder = new TextInputDialog.Builder(this)
 				.setTextWatcher(textWatcher)
@@ -762,15 +796,16 @@ public class SpriteActivity extends BaseActivity {
 
 		final AlertDialog alertDialog = builder.setTitle(R.string.formula_editor_variable_dialog_title)
 				.setView(view)
+				.setNegativeButton(getString(R.string.cancel), null)
 				.create();
 
 		makeListCheckBox.setOnCheckedChangeListener((compoundButton, checked) -> {
 			if (checked) {
 				alertDialog.setTitle(getString(R.string.formula_editor_list_dialog_title));
-				textWatcher.setScope(lists);
+				textWatcher.setOriginalScope(lists);
 			} else {
 				alertDialog.setTitle(getString(R.string.formula_editor_variable_dialog_title));
-				textWatcher.setScope(variables);
+				textWatcher.setOriginalScope(variables);
 			}
 			multiplayerRadioButton.setEnabled(!checked);
 		});
@@ -786,7 +821,7 @@ public class SpriteActivity extends BaseActivity {
 		lists.addAll(currentProject.getUserLists());
 		lists.addAll(currentSprite.getUserLists());
 
-		NewItemTextWatcher<UserData> textWatcher = new NewItemTextWatcher<>(lists);
+		DuplicateInputTextWatcher<UserData> textWatcher = new DuplicateInputTextWatcher<>(lists);
 
 		TextInputDialog.Builder builder = new TextInputDialog.Builder(this)
 				.setTextWatcher(textWatcher)
@@ -833,13 +868,23 @@ public class SpriteActivity extends BaseActivity {
 	@Nullable
 	@Override
 	public ActionMode startActionMode(ActionMode.Callback callback) {
-		removeTabLayout(this);
+		Fragment fragment = getCurrentFragment();
+		if (isFragmentWithTablayout(fragment)) {
+			removeTabLayout(this);
+		}
 		return super.startActionMode(callback);
 	}
 
 	@Override
 	public void onActionModeFinished(ActionMode mode) {
-		addTabLayout(this, getTabPositionInSpriteActivity(getCurrentFragment()));
+		Fragment fragment = getCurrentFragment();
+		if (isFragmentWithTablayout(fragment)) {
+			addTabLayout(this, getTabPositionInSpriteActivity(getCurrentFragment()));
+		}
 		super.onActionModeFinished(mode);
+	}
+
+	public void setCurrentSprite(Sprite sprite) {
+		currentSprite = sprite;
 	}
 }

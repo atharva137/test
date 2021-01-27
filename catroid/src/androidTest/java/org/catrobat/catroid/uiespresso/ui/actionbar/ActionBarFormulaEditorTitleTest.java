@@ -97,7 +97,7 @@ public class ActionBarFormulaEditorTitleTest {
 		onFormulaEditor()
 				.performOpenCategory(FormulaEditorWrapper.Category.FUNCTIONS);
 		onActionBar()
-				.checkTitleMatches(R.string.formula_editor_functions);
+				.checkTitleMatches(R.string.formula_editor_mathematics);
 	}
 
 	@Category({Cat.AppUi.class, Level.Smoke.class})

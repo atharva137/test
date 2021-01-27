@@ -167,6 +167,9 @@ public class InternFormulaKeyboardAdapter {
 			case R.string.formula_editor_function_join:
 				return buildDoubleParameterFunction(Functions.JOIN, STRING, "hello",
 						STRING, " world");
+			case R.string.formula_editor_function_join3:
+				return buildTripleParameterFunction(Functions.JOIN3, STRING, "hello",
+						STRING, " world", STRING, "!");
 			case R.string.formula_editor_function_regex:
 				return buildDoubleParameterFunction(Functions.REGEX, STRING, " an? ([^ .]+)",
 						STRING, "I am a panda.");
@@ -206,7 +209,10 @@ public class InternFormulaKeyboardAdapter {
 				return buildSensor(Sensors.LAST_FINGER_INDEX);
 			case R.string.formula_editor_function_number_of_current_touches:
 				return buildSensor(Sensors.NUMBER_CURRENT_TOUCHES);
-
+			case R.string.formula_editor_function_index_of_current_touch:
+				return buildSingleParameterFunction(Functions.INDEX_CURRENT_TOUCH, NUMBER, "1");
+			case R.string.formula_editor_sensor_color_at_x_y:
+				return buildDoubleParameterFunction(Functions.COLOR_AT_XY, NUMBER, "100", NUMBER, "200");
 			case R.string.formula_editor_sensor_x_acceleration:
 				return buildSensor(Sensors.X_ACCELERATION);
 			case R.string.formula_editor_sensor_y_acceleration:
@@ -239,6 +245,14 @@ public class InternFormulaKeyboardAdapter {
 				return buildSensor(Sensors.FACE_X_POSITION);
 			case R.string.formula_editor_sensor_face_y_position:
 				return buildSensor(Sensors.FACE_Y_POSITION);
+			case R.string.formula_editor_sensor_second_face_detected:
+				return buildSensor(Sensors.SECOND_FACE_DETECTED);
+			case R.string.formula_editor_sensor_second_face_size:
+				return buildSensor(Sensors.SECOND_FACE_SIZE);
+			case R.string.formula_editor_sensor_second_face_x_position:
+				return buildSensor(Sensors.SECOND_FACE_X_POSITION);
+			case R.string.formula_editor_sensor_second_face_y_position:
+				return buildSensor(Sensors.SECOND_FACE_Y_POSITION);
 			case R.string.formula_editor_phiro_sensor_front_left:
 				return buildSensor(Sensors.PHIRO_FRONT_LEFT);
 			case R.string.formula_editor_phiro_sensor_front_right:
@@ -337,7 +351,6 @@ public class InternFormulaKeyboardAdapter {
 				return buildOperator(Operators.DIVIDE);
 			case R.string.formula_editor_operator_power:
 				return buildOperator(Operators.POW);
-			case R.id.formula_editor_keyboard_equal:
 			case R.string.formula_editor_logic_equal:
 				return buildOperator(Operators.EQUAL);
 			case R.string.formula_editor_logic_notequal:

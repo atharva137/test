@@ -107,6 +107,7 @@ import org.catrobat.catroid.content.bricks.DroneSwitchCameraBrick;
 import org.catrobat.catroid.content.bricks.DroneTakeOffLandBrick;
 import org.catrobat.catroid.content.bricks.DroneTurnLeftBrick;
 import org.catrobat.catroid.content.bricks.DroneTurnRightBrick;
+import org.catrobat.catroid.content.bricks.EditLookBrick;
 import org.catrobat.catroid.content.bricks.ExitStageBrick;
 import org.catrobat.catroid.content.bricks.FinishStageBrick;
 import org.catrobat.catroid.content.bricks.FlashBrick;
@@ -151,6 +152,7 @@ import org.catrobat.catroid.content.bricks.LoopEndlessBrick;
 import org.catrobat.catroid.content.bricks.MoveNStepsBrick;
 import org.catrobat.catroid.content.bricks.NextLookBrick;
 import org.catrobat.catroid.content.bricks.NoteBrick;
+import org.catrobat.catroid.content.bricks.OpenUrlBrick;
 import org.catrobat.catroid.content.bricks.PaintNewLookBrick;
 import org.catrobat.catroid.content.bricks.ParameterizedBrick;
 import org.catrobat.catroid.content.bricks.ParameterizedEndBrick;
@@ -164,6 +166,7 @@ import org.catrobat.catroid.content.bricks.PhiroMotorStopBrick;
 import org.catrobat.catroid.content.bricks.PhiroPlayToneBrick;
 import org.catrobat.catroid.content.bricks.PhiroRGBLightBrick;
 import org.catrobat.catroid.content.bricks.PlaceAtBrick;
+import org.catrobat.catroid.content.bricks.PlayDrumForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlayNoteForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundAndWaitBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundBrick;
@@ -213,6 +216,7 @@ import org.catrobat.catroid.content.bricks.SetVelocityBrick;
 import org.catrobat.catroid.content.bricks.SetVolumeToBrick;
 import org.catrobat.catroid.content.bricks.SetXBrick;
 import org.catrobat.catroid.content.bricks.SetYBrick;
+import org.catrobat.catroid.content.bricks.SewUpBrick;
 import org.catrobat.catroid.content.bricks.ShowBrick;
 import org.catrobat.catroid.content.bricks.ShowTextBrick;
 import org.catrobat.catroid.content.bricks.ShowTextColorSizeAlignmentBrick;
@@ -439,6 +443,7 @@ public final class XstreamSerializer {
 		xstream.alias("brick", LoopEndlessBrick.class);
 		xstream.alias("brick", LookRequestBrick.class);
 		xstream.alias("brick", PaintNewLookBrick.class);
+		xstream.alias("brick", EditLookBrick.class);
 		xstream.alias("brick", DeleteLookBrick.class);
 		xstream.alias("brick", CopyLookBrick.class);
 		xstream.alias("brick", BackgroundRequestBrick.class);
@@ -474,6 +479,7 @@ public final class XstreamSerializer {
 		xstream.alias("brick", SetBackgroundByIndexAndWaitBrick.class);
 		xstream.alias("brick", SetInstrumentBrick.class);
 		xstream.alias("brick", SetTempoBrick.class);
+		xstream.alias("brick", PlayDrumForBeatsBrick.class);
 		xstream.alias("brick", SetPenColorBrick.class);
 		xstream.alias("brick", SetPenSizeBrick.class);
 		xstream.alias("brick", SetRotationStyleBrick.class);
@@ -561,6 +567,7 @@ public final class XstreamSerializer {
 		xstream.alias("brick", ParameterizedBrick.class);
 		xstream.alias("brick", ParameterizedEndBrick.class);
 
+		xstream.alias("brick", OpenUrlBrick.class);
 		xstream.alias("brick", TapAtBrick.class);
 		xstream.alias("brick", TapForBrick.class);
 		xstream.alias("brick", TouchAndSlideBrick.class);
@@ -584,6 +591,7 @@ public final class XstreamSerializer {
 		xstream.alias("brick", StopRunningStitchBrick.class);
 		xstream.alias("brick", ZigZagStitchBrick.class);
 		xstream.alias("brick", TripleStitchBrick.class);
+		xstream.alias("brick", SewUpBrick.class);
 		xstream.alias("brick", WriteEmbroideryToFileBrick.class);
 		xstream.alias("brick", WaitTillIdleBrick.class);
 		xstream.alias("brick", WhenRaspiPinChangedBrick.class);
@@ -739,7 +747,12 @@ public final class XstreamSerializer {
 		}
 
 		loadSaveLock.lock();
-		project.getXmlHeader().setApplicationBuildType(BuildConfig.BUILD_TYPE);
+		if (BuildConfig.BUILD_TYPE.equals("debug") || BuildConfig.BUILD_TYPE.equals("beta")) {
+			project.getXmlHeader().setApplicationBuildType("debug");
+		} else {
+			project.getXmlHeader().setApplicationBuildType(BuildConfig.BUILD_TYPE);
+		}
+
 		try {
 			String currentXml = XML_HEADER.concat(xstream.toXML(project));
 			File tmpCodeFile = new File(project.getDirectory(), TMP_CODE_XML_FILE_NAME);

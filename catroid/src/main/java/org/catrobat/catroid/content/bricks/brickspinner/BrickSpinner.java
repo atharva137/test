@@ -35,7 +35,6 @@ import android.widget.TextView;
 
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.Nameable;
-import org.catrobat.catroid.ui.SpriteActivity;
 import org.catrobat.catroid.ui.UiUtils;
 import org.catrobat.catroid.ui.recyclerview.fragment.ScriptFragment;
 
@@ -53,8 +52,6 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 	private BrickSpinnerAdapter adapter;
 	private Integer spinnerid;
 	private T previousItem;
-	private T undoItem;
-	boolean wasUndo;
 
 	private OnItemSelectedListener<T> onItemSelectedListener;
 
@@ -65,7 +62,6 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 		spinner.setAdapter(adapter);
 		spinner.setSelection(0);
 		spinner.setOnItemSelectedListener(this);
-		wasUndo = false;
 	}
 
 	public void setOnItemSelectedListener(OnItemSelectedListener<T> onItemSelectedListener) {
@@ -80,9 +76,7 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 			return;
 		}
 
-		showUndo(view, false);
-
-		if (item.getClass().equals(NewOption.class)) {
+		if (item.getClass().equals(NewOption.class) || item.getClass().equals(EditOption.class)) {
 			return;
 		}
 
@@ -96,12 +90,10 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 	}
 
 	private void onSelectionChanged(View view, Nameable item) {
-		if (previousItem != null && previousItem != item && !wasUndo) {
-			showUndo(view, true);
-			undoItem = previousItem;
+		if (previousItem != null && previousItem != item) {
+			showUndo(view);
 		}
 		previousItem = (T) item;
-		wasUndo = false;
 	}
 
 	@Override
@@ -144,15 +136,18 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 		}
 	}
 
-	public void undoSelection() {
-		setSelection(undoItem);
-		wasUndo = true;
+	public Object getSelection() {
+		return spinner.getSelectedItem();
 	}
 
 	private int consolidateSpinnerSelection(int position) {
 		if (position == -1) {
 			if (adapter.containsNewOption()) {
-				position = adapter.getCount() > 1 ? 1 : 0;
+				if (adapter.containsEditOption()) {
+					position = adapter.getCount() > 2 ? 2 : 0;
+				} else {
+					position = adapter.getCount() > 1 ? 1 : 0;
+				}
 			} else {
 				position = 0;
 			}
@@ -162,7 +157,7 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 
 	private void onSelectionSet(Nameable selectedItem) {
 		if (onItemSelectedListener != null) {
-			if (selectedItem.getClass().equals(NewOption.class)) {
+			if (selectedItem.getClass().equals(NewOption.class) || selectedItem.getClass().equals(EditOption.class)) {
 				onItemSelectedListener.onItemSelected(spinnerid, null);
 				return;
 			}
@@ -174,24 +169,28 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 		}
 	}
 
-	private void showUndo(View view, boolean visible) {
+	private void showUndo(View view) {
+		ScriptFragment scriptFragment = getScriptFragment(view);
+		if (scriptFragment.copyProjectForUndoOption()) {
+			scriptFragment.showUndo(true);
+			scriptFragment.setUndoBrickPosition();
+		}
+	}
+
+	private ScriptFragment getScriptFragment(View view) {
 		FragmentActivity activity = null;
 		if (view != null) {
 			activity = UiUtils.getActivityFromView(view);
 		}
 		if (activity == null) {
-			return;
+			return null;
 		}
 
 		Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-		if (currentFragment instanceof ScriptFragment && activity instanceof SpriteActivity) {
-			((ScriptFragment) currentFragment).setCurrentSpinner(this);
-			((SpriteActivity) activity).showUndoSpinnerSelection(visible);
+		if (currentFragment instanceof ScriptFragment) {
+			return (ScriptFragment) currentFragment;
 		}
-	}
-
-	public boolean isNewOptionSelected() {
-		return spinner.getSelectedItemId() == 0;
+		return null;
 	}
 
 	@VisibleForTesting
@@ -214,11 +213,14 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 			final Nameable item = getItem(position);
 			((TextView) convertView).setText(item.getName());
 			convertView.setOnTouchListener(new View.OnTouchListener() {
-
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if (event.getActionIndex() == MotionEvent.ACTION_DOWN && item.getClass().equals(NewOption.class)) {
-						onItemSelectedListener.onNewOptionSelected(spinnerid);
+				public boolean onTouch(View view, MotionEvent event) {
+					if (event.getActionIndex() == MotionEvent.ACTION_DOWN) {
+						if (item.getClass().equals(NewOption.class)) {
+							onItemSelectedListener.onNewOptionSelected(spinnerid);
+						} else if (item.getClass().equals(EditOption.class)) {
+							onItemSelectedListener.onEditOptionSelected(spinnerid);
+						}
 					}
 					return false;
 				}
@@ -261,11 +263,22 @@ public class BrickSpinner<T extends Nameable> implements AdapterView.OnItemSelec
 			}
 			return false;
 		}
+
+		boolean containsEditOption() {
+			for (Nameable item : items) {
+				if (item instanceof EditOption) {
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	public interface OnItemSelectedListener<T> {
 
 		void onNewOptionSelected(Integer spinnerId);
+
+		void onEditOptionSelected(Integer spinnerId);
 
 		void onStringOptionSelected(Integer spinnerId, String string);
 

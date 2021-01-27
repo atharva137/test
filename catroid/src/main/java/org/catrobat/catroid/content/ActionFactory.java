@@ -75,6 +75,7 @@ import org.catrobat.catroid.content.actions.DroneTurnLeftAction;
 import org.catrobat.catroid.content.actions.DroneTurnLeftWithMagnetometerAction;
 import org.catrobat.catroid.content.actions.DroneTurnRightAction;
 import org.catrobat.catroid.content.actions.DroneTurnRightWithMagnetometerAction;
+import org.catrobat.catroid.content.actions.EditLookAction;
 import org.catrobat.catroid.content.actions.EventAction;
 import org.catrobat.catroid.content.actions.FinishStageAction;
 import org.catrobat.catroid.content.actions.FlashAction;
@@ -109,6 +110,7 @@ import org.catrobat.catroid.content.actions.LegoNxtMotorTurnAngleAction;
 import org.catrobat.catroid.content.actions.LegoNxtPlayToneAction;
 import org.catrobat.catroid.content.actions.LookRequestAction;
 import org.catrobat.catroid.content.actions.MoveNStepsAction;
+import org.catrobat.catroid.content.actions.OpenUrlAction;
 import org.catrobat.catroid.content.actions.PaintNewLookAction;
 import org.catrobat.catroid.content.actions.ParameterizedAssertAction;
 import org.catrobat.catroid.content.actions.PauseForBeatsAction;
@@ -120,6 +122,7 @@ import org.catrobat.catroid.content.actions.PhiroMotorStopAction;
 import org.catrobat.catroid.content.actions.PhiroPlayToneAction;
 import org.catrobat.catroid.content.actions.PhiroRGBLightAction;
 import org.catrobat.catroid.content.actions.PhiroSensorAction;
+import org.catrobat.catroid.content.actions.PlayDrumForBeatsAction;
 import org.catrobat.catroid.content.actions.PlayNoteForBeatsAction;
 import org.catrobat.catroid.content.actions.PlaySoundAction;
 import org.catrobat.catroid.content.actions.PointInDirectionAction;
@@ -160,6 +163,7 @@ import org.catrobat.catroid.content.actions.SetVisibleAction;
 import org.catrobat.catroid.content.actions.SetVolumeToAction;
 import org.catrobat.catroid.content.actions.SetXAction;
 import org.catrobat.catroid.content.actions.SetYAction;
+import org.catrobat.catroid.content.actions.SewUpAction;
 import org.catrobat.catroid.content.actions.ShowTextAction;
 import org.catrobat.catroid.content.actions.ShowTextColorSizeAlignmentAction;
 import org.catrobat.catroid.content.actions.SpeakAction;
@@ -178,6 +182,7 @@ import org.catrobat.catroid.content.actions.ThinkSayBubbleAction;
 import org.catrobat.catroid.content.actions.TripleStitchAction;
 import org.catrobat.catroid.content.actions.TurnLeftAction;
 import org.catrobat.catroid.content.actions.TurnRightAction;
+import org.catrobat.catroid.content.actions.UserDefinedBrickAction;
 import org.catrobat.catroid.content.actions.VibrateAction;
 import org.catrobat.catroid.content.actions.WaitAction;
 import org.catrobat.catroid.content.actions.WaitForBubbleBrickAction;
@@ -206,17 +211,30 @@ import org.catrobat.catroid.content.bricks.PhiroMotorMoveForwardBrick;
 import org.catrobat.catroid.content.bricks.PhiroMotorStopBrick;
 import org.catrobat.catroid.content.bricks.PhiroPlayToneBrick;
 import org.catrobat.catroid.content.bricks.PhiroRGBLightBrick;
+import org.catrobat.catroid.content.bricks.brickspinner.PickableDrum;
 import org.catrobat.catroid.content.bricks.brickspinner.PickableMusicalInstrument;
 import org.catrobat.catroid.formulaeditor.Formula;
 import org.catrobat.catroid.formulaeditor.UserList;
 import org.catrobat.catroid.formulaeditor.UserVariable;
 import org.catrobat.catroid.physics.PhysicsObject;
+import org.catrobat.catroid.userbrick.UserDefinedBrickData;
 
 import java.util.List;
+import java.util.UUID;
 
 import kotlin.Pair;
 
 public class ActionFactory extends Actions {
+
+	public EventAction createUserBrickAction(List<UserDefinedBrickData> userDefinedBrickDataList,
+											UUID userDefinedBrickID, Sprite sprite) {
+		UserDefinedBrickAction action = action(UserDefinedBrickAction.class);
+		action.setUserDefinedBrickDataList(userDefinedBrickDataList);
+		action.setUserDefinedBrickID(userDefinedBrickID);
+		action.setSprite(sprite);
+		action.setWait(true);
+		return action;
+	}
 
 	public EventAction createBroadcastAction(String broadcastMessage, boolean wait) {
 		BroadcastAction action = action(BroadcastAction.class);
@@ -748,6 +766,14 @@ public class ActionFactory extends Actions {
 		return action;
 	}
 
+	public Action createPlayDrumForBeatsAction(Sprite sprite, Formula beats, PickableDrum drum) {
+		PlayDrumForBeatsAction action = action(PlayDrumForBeatsAction.class);
+		action.setSprite(sprite);
+		action.setBeats(beats);
+		action.setDrum(drum);
+		return action;
+	}
+
 	public Action createTurnLeftAction(Sprite sprite, Formula degrees) {
 		TurnLeftAction action = Actions.action(TurnLeftAction.class);
 		action.setSprite(sprite);
@@ -985,6 +1011,12 @@ public class ActionFactory extends Actions {
 		action.setSprite(sprite);
 		action.setFormula(fileName);
 
+		return action;
+	}
+
+	public Action createSewUpAction(Sprite sprite) {
+		SewUpAction action = Actions.action(SewUpAction.class);
+		action.setSprite(sprite);
 		return action;
 	}
 
@@ -1482,6 +1514,13 @@ public class ActionFactory extends Actions {
 		return action;
 	}
 
+	public Action createOpenUrlAction(Sprite sprite, Formula variableFormula) {
+		OpenUrlAction action = action(OpenUrlAction.class);
+		action.setSprite(sprite);
+		action.setFormula(variableFormula);
+		return action;
+	}
+
 	public Action createStartListeningAction(UserVariable userVariable) {
 		StartListeningAction action = Actions.action(StartListeningAction.class);
 		action.setUserVariable(userVariable);
@@ -1508,6 +1547,13 @@ public class ActionFactory extends Actions {
 		CopyLookAction action = action(CopyLookAction.class);
 		action.setSprite(sprite);
 		action.setFormula(variableFormula);
+		action.nextLookAction(nextLookAction);
+		return action;
+	}
+
+	public Action createEditLookAction(Sprite sprite, SetNextLookAction nextLookAction) {
+		EditLookAction action = action(EditLookAction.class);
+		action.setSprite(sprite);
 		action.nextLookAction(nextLookAction);
 		return action;
 	}

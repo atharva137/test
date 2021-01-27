@@ -43,6 +43,8 @@ import org.catrobat.catroid.stage.StageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -409,6 +411,8 @@ public class FormulaElement implements Serializable {
 				return interpretFunctionLength(arguments.get(0), sprite, currentProject);
 			case JOIN:
 				return interpretFunctionJoin(sprite, leftChild, rightChild);
+			case JOIN3:
+				return interpretFunctionJoin3(sprite, leftChild, rightChild, additionalChildren);
 			case REGEX:
 				return tryInterpretFunctionRegex(sprite, leftChild, rightChild);
 			case LIST_ITEM:
@@ -425,6 +429,8 @@ public class FormulaElement implements Serializable {
 			case COLOR_TOUCHES_COLOR:
 				return booleanToDouble(new ColorCollisionDetection(sprite, currentProject, StageActivity.stageListener)
 						.tryInterpretFunctionColorTouchesColor(arguments.get(0), arguments.get(1)));
+			case COLOR_AT_XY:
+				return Double.NaN;
 			default:
 				return interpretFormulaFunction(function, arguments);
 		}
@@ -521,6 +527,12 @@ public class FormulaElement implements Serializable {
 
 	private static String interpretFunctionJoin(Sprite sprite, FormulaElement leftChild, FormulaElement rightChild) {
 		return interpretFunctionString(leftChild, sprite) + interpretFunctionString(rightChild, sprite);
+	}
+
+	private static String interpretFunctionJoin3(Sprite sprite, FormulaElement leftChild,
+			FormulaElement rightChild, List<FormulaElement> additionalChildren) {
+		return interpretFunctionString(leftChild, sprite) + interpretFunctionString(rightChild,
+				sprite) + interpretFunctionString(additionalChildren.get(0), sprite);
 	}
 
 	private static String tryInterpretFunctionRegex(Sprite sprite, FormulaElement leftChild, FormulaElement rightChild) {
@@ -690,36 +702,67 @@ public class FormulaElement implements Serializable {
 	private double interpretBinaryOperator(@NotNull Operators operator, Sprite sprite) {
 		Object leftObject = tryInterpretElementRecursive(leftChild, sprite);
 		Object rightObject = tryInterpretElementRecursive(rightChild, sprite);
-		Double left = tryInterpretDoubleValue(leftObject);
-		Double right = tryInterpretDoubleValue(rightObject);
+
+		Double leftDouble = tryInterpretDoubleValue(leftObject);
+		Double rightDouble = tryInterpretDoubleValue(rightObject);
+
+		BigDecimal left;
+		BigDecimal right;
+		try {
+			left = BigDecimal.valueOf(tryInterpretDoubleValue(leftObject));
+		} catch (NumberFormatException e) {
+			left = BigDecimal.valueOf(0d);
+		}
+		try {
+			right = BigDecimal.valueOf(tryInterpretDoubleValue(rightObject));
+		} catch (NumberFormatException e) {
+			right = BigDecimal.valueOf(0d);
+		}
+
+		boolean atLeastOneIsNaN = Double.isNaN(leftDouble) || Double.isNaN(rightDouble);
 
 		switch (operator) {
 			case PLUS:
-				return left + right;
+				if (atLeastOneIsNaN) {
+					return Double.NaN;
+				}
+				return left.add(right, MathContext.DECIMAL128).doubleValue();
 			case MINUS:
-				return left - right;
+				if (atLeastOneIsNaN) {
+					return Double.NaN;
+				}
+				return left.subtract(right, MathContext.DECIMAL128).doubleValue();
 			case MULT:
-				return left * right;
+				if (atLeastOneIsNaN) {
+					return Double.NaN;
+				}
+				return left.multiply(right, MathContext.DECIMAL128).doubleValue();
 			case DIVIDE:
-				return left / right;
+				if (atLeastOneIsNaN || right.equals(BigDecimal.valueOf(0d))) {
+					return Double.NaN;
+				}
+				return left.divide(right, MathContext.DECIMAL128).doubleValue();
 			case POW:
-				return Math.pow(left, right);
+				if (atLeastOneIsNaN) {
+					return Double.NaN;
+				}
+				return Math.pow(left.doubleValue(), right.doubleValue());
 			case EQUAL:
 				return booleanToDouble(interpretOperatorEqual(leftObject, rightObject));
 			case NOT_EQUAL:
 				return booleanToDouble(!(interpretOperatorEqual(leftObject, rightObject)));
 			case GREATER_THAN:
-				return booleanToDouble(left.compareTo(right) > 0);
+				return booleanToDouble(leftDouble.compareTo(rightDouble) > 0);
 			case GREATER_OR_EQUAL:
-				return booleanToDouble(left.compareTo(right) >= 0);
+				return booleanToDouble(leftDouble.compareTo(rightDouble) >= 0);
 			case SMALLER_THAN:
-				return booleanToDouble(left.compareTo(right) < 0);
+				return booleanToDouble(leftDouble.compareTo(rightDouble) < 0);
 			case SMALLER_OR_EQUAL:
-				return booleanToDouble(left.compareTo(right) <= 0);
+				return booleanToDouble(leftDouble.compareTo(rightDouble) <= 0);
 			case LOGICAL_AND:
-				return booleanToDouble(left != FALSE && right != FALSE);
+				return booleanToDouble(leftDouble != FALSE && rightDouble != FALSE);
 			case LOGICAL_OR:
-				return booleanToDouble(left != FALSE || right != FALSE);
+				return booleanToDouble(leftDouble != FALSE || rightDouble != FALSE);
 			default:
 				return FALSE;
 		}

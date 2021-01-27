@@ -115,8 +115,8 @@ public abstract class UserVariableBrickWithVisualPlacement extends VisualPlaceme
 		builder.show();
 	}
 
-	public boolean isNewOptionSelected() {
-		return spinner.isNewOptionSelected();
+	@Override
+	public void onEditOptionSelected(Integer spinnerId) {
 	}
 
 	@Override
@@ -139,15 +139,15 @@ public abstract class UserVariableBrickWithVisualPlacement extends VisualPlaceme
 	}
 
 	@Override
-	public boolean visualPlacementConditionsSatisfied() {
-		return super.visualPlacementConditionsSatisfied() && !this.isNewOptionSelected();
-	}
-
-	@Override
 	public Intent generateIntentForVisualPlacement(BrickField brickFieldX, BrickField brickFieldY) {
 		Intent intent = super.generateIntentForVisualPlacement(brickFieldX, brickFieldY);
-		String text = userVariable.getValue().toString();
 
+		Object variableValue = 0;
+		if (userVariable != null) {
+			variableValue = userVariable.getValue();
+		}
+
+		String text = variableValue.toString();
 		if (isNumberAndInteger(text)) {
 			text = getStringAsInteger(text);
 		}

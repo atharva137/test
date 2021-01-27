@@ -98,6 +98,7 @@ import org.catrobat.catroid.content.bricks.LoopEndlessBrick;
 import org.catrobat.catroid.content.bricks.MoveNStepsBrick;
 import org.catrobat.catroid.content.bricks.NextLookBrick;
 import org.catrobat.catroid.content.bricks.NoteBrick;
+import org.catrobat.catroid.content.bricks.OpenUrlBrick;
 import org.catrobat.catroid.content.bricks.PenDownBrick;
 import org.catrobat.catroid.content.bricks.PenUpBrick;
 import org.catrobat.catroid.content.bricks.PhiroIfLogicBeginBrick;
@@ -107,6 +108,7 @@ import org.catrobat.catroid.content.bricks.PhiroMotorStopBrick;
 import org.catrobat.catroid.content.bricks.PhiroPlayToneBrick;
 import org.catrobat.catroid.content.bricks.PhiroRGBLightBrick;
 import org.catrobat.catroid.content.bricks.PlaceAtBrick;
+import org.catrobat.catroid.content.bricks.PlayDrumForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlayNoteForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundAndWaitBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundBrick;
@@ -146,6 +148,7 @@ import org.catrobat.catroid.content.bricks.SetVelocityBrick;
 import org.catrobat.catroid.content.bricks.SetVolumeToBrick;
 import org.catrobat.catroid.content.bricks.SetXBrick;
 import org.catrobat.catroid.content.bricks.SetYBrick;
+import org.catrobat.catroid.content.bricks.SewUpBrick;
 import org.catrobat.catroid.content.bricks.ShowBrick;
 import org.catrobat.catroid.content.bricks.ShowTextBrick;
 import org.catrobat.catroid.content.bricks.SpeakAndWaitBrick;
@@ -281,6 +284,9 @@ public class BackwardCompatibleCatrobatLanguageXStream extends XStream {
 
 		brickInfo = new BrickInfo(ResetTimerBrick.class.getSimpleName());
 		brickInfoMap.put("resetTimerBrick", brickInfo);
+
+		brickInfo = new BrickInfo(OpenUrlBrick.class.getSimpleName());
+		brickInfoMap.put("OpenUrlBrick", brickInfo);
 
 		brickInfo = new BrickInfo(ClearGraphicEffectBrick.class.getSimpleName());
 		brickInfoMap.put("clearGraphicEffectBrick", brickInfo);
@@ -428,6 +434,9 @@ public class BackwardCompatibleCatrobatLanguageXStream extends XStream {
 
 		brickInfo = new BrickInfo(GoToBrick.class.getSimpleName());
 		brickInfoMap.put("goToBrick", brickInfo);
+
+		brickInfo = new BrickInfo(PlayDrumForBeatsBrick.class.getSimpleName());
+		brickInfoMap.put("playDrumForBeatsBrick", brickInfo);
 
 		brickInfo = new BrickInfo(PlaySoundBrick.class.getSimpleName());
 		brickInfoMap.put("playSoundBrick", brickInfo);
@@ -715,6 +724,9 @@ public class BackwardCompatibleCatrobatLanguageXStream extends XStream {
 
 		brickInfo = new BrickInfo(WhenGamepadButtonBrick.class.getSimpleName());
 		brickInfoMap.put("whenGamepadButtonBrick", brickInfo);
+
+		brickInfo = new BrickInfo(SewUpBrick.class.getSimpleName());
+		brickInfoMap.put("sewUpBrick", brickInfo);
 	}
 
 	private void initializeScriptInfoMap() {

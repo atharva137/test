@@ -1,6 +1,6 @@
 /*
  * Catroid: An on-device visual programming system for Android devices
- * Copyright (C) 2010-2018 The Catrobat Team
+ * Copyright (C) 2010-2021 The Catrobat Team
  * (<http://developer.catrobat.org/credits>)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,10 +27,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
+import android.widget.EditText;
 
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.catrobat.catroid.R;
+import org.catrobat.catroid.ui.ViewUtils;
+import org.catrobat.catroid.ui.recyclerview.dialog.textwatcher.InputWatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,7 +52,7 @@ public final class TextInputDialog extends AlertDialog {
 		@Nullable
 		private String text;
 		@Nullable
-		private TextWatcher textWatcher;
+		private InputWatcher.TextWatcher textWatcher;
 
 		public Builder(@NonNull Context context) {
 			super(context);
@@ -66,19 +69,16 @@ public final class TextInputDialog extends AlertDialog {
 			return this;
 		}
 
-		public Builder setTextWatcher(TextWatcher textWatcher) {
+		public Builder setTextWatcher(InputWatcher.TextWatcher textWatcher) {
 			this.textWatcher = textWatcher;
 			return this;
 		}
 
-		public Builder setPositiveButton(String text, final OnClickListener listener) {
-			setPositiveButton(text, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					TextInputLayout textInputLayout = ((Dialog) dialog).findViewById(R.id.input);
-					String text = textInputLayout.getEditText().getText().toString();
-					listener.onPositiveButtonClick(dialog, text);
-				}
+		public Builder setPositiveButton(String buttonText, final OnClickListener listener) {
+			setPositiveButton(buttonText, (DialogInterface.OnClickListener) (dialog, which) -> {
+				TextInputLayout textInputLayout = ((Dialog) dialog).findViewById(R.id.input);
+				String text = textInputLayout.getEditText().getText().toString();
+				listener.onPositiveButtonClick(dialog, text);
 			});
 			return this;
 		}
@@ -87,26 +87,21 @@ public final class TextInputDialog extends AlertDialog {
 		public AlertDialog create() {
 			final AlertDialog alertDialog = super.create();
 
-			alertDialog.setOnShowListener(new OnShowListener() {
-				@Override
-				public void onShow(DialogInterface dialog) {
-					TextInputLayout textInputLayout = alertDialog.findViewById(R.id.input);
-					textInputLayout.setHint(hint);
-					textInputLayout.getEditText().setText(text);
-					textInputLayout.getEditText().selectAll();
+			alertDialog.setOnShowListener(dialog -> {
+				TextInputLayout textInputLayout = alertDialog.findViewById(R.id.input);
+				EditText editText = textInputLayout.getEditText();
+				textInputLayout.setHint(hint);
+				editText.setText(text);
+				editText.selectAll();
 
-					if (textWatcher != null) {
-						textInputLayout.getEditText().addTextChangedListener(textWatcher);
-						textWatcher.setInputLayout(textInputLayout);
-						textWatcher.setAlertDialog(alertDialog);
-						String error = textWatcher
-								.validateInput(textInputLayout.getEditText().getText().toString(), getContext());
-
-						alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(error == null);
-					}
+				if (textWatcher != null) {
+					textInputLayout.getEditText().addTextChangedListener(textWatcher);
+					textWatcher.setInputLayout(textInputLayout);
+					textWatcher.setButton(alertDialog.getButton(AlertDialog.BUTTON_POSITIVE));
+					textWatcher.setContext(getContext());
 				}
+				ViewUtils.showKeyboard(editText);
 			});
-
 			return alertDialog;
 		}
 	}

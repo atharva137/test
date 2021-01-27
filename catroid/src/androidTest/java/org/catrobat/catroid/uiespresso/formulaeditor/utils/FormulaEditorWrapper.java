@@ -154,6 +154,7 @@ public final class FormulaEditorWrapper extends ViewInteractionWrapper {
 	public void performOpenFunctions() {
 		performOpenCategory(Category.FUNCTIONS);
 	}
+	public void performOpenLists(){performOpenCategory(Category.LISTS);}
 
 	public void performUndo() {
 		onView(ActionMenu.UNDO)
@@ -186,7 +187,6 @@ public final class FormulaEditorWrapper extends ViewInteractionWrapper {
 		numpad.put('/', Math.DIVIDE);
 		numpad.put('(', Math.BRACKETOPEN);
 		numpad.put(')', Math.BRACKETCLOSE);
-		numpad.put('=', Math.EQUAL);
 
 		charToButtonMapping = Collections.unmodifiableMap(numpad);
 	}
@@ -210,13 +210,12 @@ public final class FormulaEditorWrapper extends ViewInteractionWrapper {
 		public static final Matcher<View> MINUS = withId(R.id.formula_editor_keyboard_minus);
 		public static final Matcher<View> MULT = withId(R.id.formula_editor_keyboard_mult);
 		public static final Matcher<View> DIVIDE = withId(R.id.formula_editor_keyboard_divide);
-		public static final Matcher<View> EQUAL = withId(R.id.formula_editor_keyboard_equal);
 		public static final Matcher<View> BRACKETOPEN = withId(R.id.formula_editor_keyboard_bracket_open);
 		public static final Matcher<View> BRACKETCLOSE = withId(R.id.formula_editor_keyboard_bracket_close);
 	}
 
 	public static final class Control {
-		public static final Matcher<View> OK = withId(R.id.formula_editor_keyboard_ok);
+		public static final Matcher<View> OK = withId(R.id.menu_ok);
 		public static final Matcher<View> COMPUTE = withId(R.id.formula_editor_keyboard_compute);
 		public static final Matcher<View> BACKSPACE = withId(R.id.formula_editor_keyboard_delete);
 		public static final Matcher<View> DATA = withId(R.id.formula_editor_keyboard_data);
@@ -225,9 +224,10 @@ public final class FormulaEditorWrapper extends ViewInteractionWrapper {
 
 	public static final class Category {
 		public static final Matcher<View> OBJECT = withId(R.id.formula_editor_keyboard_object);
-		public static final Matcher<View> FUNCTIONS = withId(R.id.formula_editor_keyboard_function);
+		public static final Matcher<View> FUNCTIONS = withId(R.id.formula_editor_keyboard_mathematics);
 		public static final Matcher<View> LOGIC = withId(R.id.formula_editor_keyboard_logic);
 		public static final Matcher<View> DEVICE = withId(R.id.formula_editor_keyboard_sensors);
+		public static final Matcher<View> LISTS = withId(R.id.formula_editor_keyboard_list);
 	}
 
 	public static final class ActionMenu {

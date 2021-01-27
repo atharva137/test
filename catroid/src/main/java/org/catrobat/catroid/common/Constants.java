@@ -1,6 +1,6 @@
 /*
  * Catroid: An on-device visual programming system for Android devices
- * Copyright (C) 2010-2018 The Catrobat Team
+ * Copyright (C) 2010-2021 The Catrobat Team
  * (<http://developer.catrobat.org/credits>)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ import static org.catrobat.catroid.common.FlavoredConstants.DEFAULT_ROOT_DIRECTO
 
 public final class Constants {
 
-	public static final double CURRENT_CATROBAT_LANGUAGE_VERSION = 0.99999998;
+	public static final double CURRENT_CATROBAT_LANGUAGE_VERSION = 0.999999994;
 
 	public static final String REMOTE_DISPLAY_APP_ID = "CEBB9229";
 	public static final int CAST_CONNECTION_TIMEOUT = 5000; //in milliseconds
@@ -51,6 +51,7 @@ public final class Constants {
 	public static final String CODE_XML_FILE_NAME = "code.xml";
 	public static final String PERMISSIONS_FILE_NAME = "permissions.txt";
 	public static final String TMP_CODE_XML_FILE_NAME = "tmp_" + CODE_XML_FILE_NAME;
+	public static final String UNDO_CODE_XML_FILE_NAME = "undo_" + CODE_XML_FILE_NAME;
 
 	public static final String DEVICE_VARIABLE_JSON_FILENAME = "DeviceVariables.json";
 	public static final String DEVICE_LIST_JSON_FILENAME = "DeviceLists.json";
@@ -77,6 +78,8 @@ public final class Constants {
 	public static final String SOUND_DIRECTORY_NAME = "sounds";
 	public static final String SCREENSHOT_AUTOMATIC_FILE_NAME = "automatic_screenshot" + DEFAULT_IMAGE_EXTENSION;
 	public static final String SCREENSHOT_MANUAL_FILE_NAME = "manual_screenshot" + DEFAULT_IMAGE_EXTENSION;
+	public static final File TEMP_LOOK_FILE =
+			new File(DEFAULT_ROOT_DIRECTORY, "temporary_look_file" + DEFAULT_IMAGE_EXTENSION);
 
 	// Backpack Directories
 	public static final String BACKPACK_DIRECTORY_NAME = "backpack";

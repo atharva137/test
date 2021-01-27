@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.catrobat.catroid.BuildConfig;
 import org.catrobat.catroid.ProjectManager;
 import org.catrobat.catroid.R;
 import org.catrobat.catroid.common.Constants;
@@ -72,6 +73,8 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 
 	public static final String OBJECT_TAG = "objectFragment";
 	public static final String FUNCTION_TAG = "functionFragment";
+	public static final  String TEXT_TAG = "text";
+	public static final String LIST_TAG="list";
 	public static final String LOGIC_TAG = "logicFragment";
 	public static final String SENSOR_TAG = "sensorFragment";
 	public static final String ACTION_BAR_TITLE_BUNDLE_ARGUMENT = "actionBarTitle";
@@ -121,10 +124,20 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 			R.string.formula_editor_function_if_then_else_parameter);
 	private static final List<Integer> STRING_FUNCTIONS = asList(R.string.formula_editor_function_length,
 			R.string.formula_editor_function_letter, R.string.formula_editor_function_join,
-			R.string.formula_editor_function_regex, R.string.formula_editor_function_regex_assistant);
+			R.string.formula_editor_function_join3, R.string.formula_editor_function_regex);
 	private static final List<Integer> STRING_PARAMS = asList(R.string.formula_editor_function_length_parameter,
-			R.string.formula_editor_function_letter_parameter, R.string.formula_editor_function_join_parameter,
-			R.string.formula_editor_function_regex_parameter, R.string.formula_editor_function_no_parameter);
+			R.string.formula_editor_function_letter_parameter,
+			R.string.formula_editor_function_join_parameter,
+			R.string.formula_editor_function_join3_parameter,
+			R.string.formula_editor_function_regex_parameter);
+	private static final List<Integer> TEXT_FUNCTIONS =
+			asList(R.string.formula_editor_function_regex_assistant,
+					R.string.formula_editor_object_look_name,R.string.formula_editor_object_background_number,
+					R.string.formula_editor_object_background_name,R.string.formula_editor_sensor_text_from_camera,
+					R.string.formula_editor_sensor_text_blocks_number,
+					R.string.formula_editor_function_text_block_x,
+					R.string.formula_editor_function_text_block_y,
+					R.string.formula_editor_function_text_block_size);
 	private static final List<Integer> LIST_FUNCTIONS = asList(R.string.formula_editor_function_number_of_items,
 			R.string.formula_editor_function_list_item, R.string.formula_editor_function_contains,
 			R.string.formula_editor_function_index_of_item);
@@ -139,12 +152,28 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 			R.string.formula_editor_logic_notequal, R.string.formula_editor_logic_lesserthan,
 			R.string.formula_editor_logic_leserequal, R.string.formula_editor_logic_greaterthan,
 			R.string.formula_editor_logic_greaterequal);
+	private static final List<Integer> LOGIC_REPORTERS =
+			asList(R.string.formula_editor_function_if_then_else,
+					R.string.formula_editor_function_collides_with_edge,
+					R.string.formula_editor_function_touched,
+					R.string.formula_editor_function_collides_with_color,
+					R.string.formula_editor_sensor_second_face_detected);
+	private static final List<Integer> LOGIC_REPORTERS_TOUCHED =
+			asList(R.string.formula_editor_function_is_multi_finger_touching);
+	private static final List<Integer> REPORTERS_TOUCHED_PARAMS =
+			asList(R.string.formula_editor_function_touch_parameter);
+
+
 	private static final List<Integer> SENSORS_DEFAULT = asList(R.string.formula_editor_sensor_loudness,
 			R.string.formula_editor_function_touched);
 	private static final List<Integer> OBJECT_COLOR_COLLISION =
 			asList(R.string.formula_editor_function_collides_with_color, R.string.formula_editor_function_color_touches_color);
-	private static final List<Integer> SENSORS_COLOR_PARAMS =
+	private static final List<Integer> OBJECT_COLOR_PARAMS =
 			asList(R.string.formula_editor_function_collides_with_color_parameter, R.string.formula_editor_function_color_touches_color_parameter);
+
+	private static final List<Integer> SENSORS_COLOR_AT_XY = asList(R.string.formula_editor_sensor_color_at_x_y);
+	private static final List<Integer> SENSORS_COLOR_AT_XY_PARAMS = asList(R.string.formula_editor_sensor_color_at_x_y_parameter);
+
 	private static final List<Integer> SENSORS_ACCELERATION = asList(R.string.formula_editor_sensor_x_acceleration,
 			R.string.formula_editor_sensor_y_acceleration, R.string.formula_editor_sensor_z_acceleration);
 	private static final List<Integer> SENSORS_INCLINATION = asList(R.string.formula_editor_sensor_x_inclination,
@@ -160,15 +189,20 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 			R.string.formula_editor_function_multi_finger_x, R.string.formula_editor_function_multi_finger_y,
 			R.string.formula_editor_function_is_multi_finger_touching,
 			R.string.formula_editor_function_index_of_last_finger,
-			R.string.formula_editor_function_number_of_current_touches);
+			R.string.formula_editor_function_number_of_current_touches,
+			R.string.formula_editor_function_index_of_current_touch);
 	private static final List<Integer> SENSORS_TOUCH_PARAMS = asList(R.string.formula_editor_function_no_parameter,
 			R.string.formula_editor_function_no_parameter, R.string.formula_editor_function_no_parameter,
 			R.string.formula_editor_function_touch_parameter, R.string.formula_editor_function_touch_parameter,
 			R.string.formula_editor_function_touch_parameter, R.string.formula_editor_function_no_parameter,
-			R.string.formula_editor_function_no_parameter);
+			R.string.formula_editor_function_no_parameter, R.string.formula_editor_function_touch_parameter);
 	private static final List<Integer> SENSORS_VISUAL_DETECTION = asList(R.string.formula_editor_sensor_face_detected,
 			R.string.formula_editor_sensor_face_size, R.string.formula_editor_sensor_face_x_position,
 			R.string.formula_editor_sensor_face_y_position,
+			R.string.formula_editor_sensor_second_face_detected,
+			R.string.formula_editor_sensor_second_face_size,
+			R.string.formula_editor_sensor_second_face_x_position,
+			R.string.formula_editor_sensor_second_face_y_position,
 			R.string.formula_editor_sensor_text_from_camera,
 			R.string.formula_editor_sensor_text_blocks_number,
 			R.string.formula_editor_function_text_block_x,
@@ -348,7 +382,7 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 	private CategoryListItem getRegularExpressionItem() {
 		CategoryListItem regexItem = null;
 
-		List<CategoryListItem> itemList = getFunctionItems();
+		List<CategoryListItem> itemList = getTextItems();
 		for (CategoryListItem item : itemList) {
 			if (item.nameResId == R.string.formula_editor_function_regex) {
 				regexItem = item;
@@ -480,6 +514,10 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 			items = getObjectItems();
 		} else if (FUNCTION_TAG.equals(argument)) {
 			items = getFunctionItems();
+		} else if (TEXT_TAG.equals(argument)) {
+			items = getTextItems();
+		} else if(LIST_TAG.equals(argument)){
+			items = getListItems();
 		} else if (LOGIC_TAG.equals(argument)) {
 			items = getLogicItems();
 		} else if (SENSOR_TAG.equals(argument)) {
@@ -538,12 +576,22 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 
 	private List<CategoryListItem> getFunctionItems() {
 		List<CategoryListItem> result = new ArrayList<>();
-		result.addAll(addHeader(toCategoryListItems(MATH_FUNCTIONS, MATH_PARAMS),
-				getString(R.string.formula_editor_functions_maths)));
-		result.addAll(addHeader(toCategoryListItems(STRING_FUNCTIONS, STRING_PARAMS),
-				getString(R.string.formula_editor_functions_strings)));
-		result.addAll(addHeader(toCategoryListItems(LIST_FUNCTIONS, LIST_PARAMS),
-				getString(R.string.formula_editor_functions_lists)));
+		result.addAll((toCategoryListItems(MATH_FUNCTIONS, MATH_PARAMS)));
+
+		return result;
+	}
+	private List<CategoryListItem> getTextItems(){
+		List<CategoryListItem> result = new ArrayList<>();
+		result.addAll(toCategoryListItems(STRING_FUNCTIONS,STRING_PARAMS));
+		result.addAll(toCategoryListItems(TEXT_FUNCTIONS));
+		result.addAll(toCategoryListItems(SENSORS_COLOR_AT_XY,SENSORS_COLOR_AT_XY_PARAMS));
+		result.addAll(toCategoryListItems(SENSORS_SPEECH_RECOGNITION));
+
+		return result;
+	}
+	private List<CategoryListItem> getListItems(){
+		List<CategoryListItem> result  = new ArrayList<>();
+		result.addAll(toCategoryListItems(LIST_FUNCTIONS,LIST_PARAMS));
 
 		return result;
 	}
@@ -553,6 +601,18 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 		result.addAll(addHeader(toCategoryListItems(LOGIC_BOOL), getString(R.string.formula_editor_logic_boolean)));
 		result.addAll(addHeader(toCategoryListItems(LOGIC_COMPARISION),
 				getString(R.string.formula_editor_logic_comparison)));
+		result.addAll(getReportersItems());
+		return result;
+	}
+	private List<CategoryListItem>getReportersItems(){
+		List<CategoryListItem> result = new ArrayList<>();
+
+		result.addAll(addHeader(toCategoryListItems(LOGIC_REPORTERS),
+				getString(R.string.formula_editor_logic_reporters)));
+		result.addAll((toCategoryListItems(OBJECT_PHYSICAL_COLLISION,
+				CategoryListRVAdapter.COLLISION)));
+
+		result.addAll(toCategoryListItems(LOGIC_REPORTERS_TOUCHED,REPORTERS_TOUCHED_PARAMS));
 		return result;
 	}
 
@@ -593,13 +653,17 @@ public class CategoryListFragment extends Fragment implements CategoryListRVAdap
 		List<CategoryListItem> result = toCategoryListItems(OBJECT_PHYSICAL_1);
 		result.addAll(toCategoryListItems(OBJECT_PHYSICAL_COLLISION, CategoryListRVAdapter.COLLISION));
 		result.addAll(toCategoryListItems(OBJECT_PHYSICAL_2));
-		result.addAll(toCategoryListItems(OBJECT_COLOR_COLLISION, SENSORS_COLOR_PARAMS));
+		result.addAll(toCategoryListItems(OBJECT_COLOR_COLLISION, OBJECT_COLOR_PARAMS));
 		return addHeader(result, getString(R.string.formula_editor_object_movement));
 	}
 
 	private List<CategoryListItem> getDeviceSensorItems() {
 		List<CategoryListItem> deviceSensorItems = new ArrayList<>(toCategoryListItems(SENSORS_DEFAULT));
 		SensorHandler sensorHandler = SensorHandler.getInstance(getActivity());
+		if (BuildConfig.DEBUG) {
+			deviceSensorItems.addAll(toCategoryListItems(SENSORS_COLOR_AT_XY, SENSORS_COLOR_AT_XY_PARAMS));
+		}
+
 		deviceSensorItems.addAll(sensorHandler.accelerationAvailable() ? toCategoryListItems(SENSORS_ACCELERATION)
 				: Collections.emptyList());
 		deviceSensorItems.addAll(sensorHandler.inclinationAvailable() ? toCategoryListItems(SENSORS_INCLINATION)

@@ -1,6 +1,6 @@
 /*
  * Catroid: An on-device visual programming system for Android devices
- * Copyright (C) 2010-2020 The Catrobat Team
+ * Copyright (C) 2010-2021 The Catrobat Team
  * (<http://developer.catrobat.org/credits>)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -75,6 +75,7 @@ import org.catrobat.catroid.content.bricks.DroneSwitchCameraBrick;
 import org.catrobat.catroid.content.bricks.DroneTakeOffLandBrick;
 import org.catrobat.catroid.content.bricks.DroneTurnLeftBrick;
 import org.catrobat.catroid.content.bricks.DroneTurnRightBrick;
+import org.catrobat.catroid.content.bricks.EditLookBrick;
 import org.catrobat.catroid.content.bricks.ExitStageBrick;
 import org.catrobat.catroid.content.bricks.FinishStageBrick;
 import org.catrobat.catroid.content.bricks.FlashBrick;
@@ -114,6 +115,7 @@ import org.catrobat.catroid.content.bricks.LookRequestBrick;
 import org.catrobat.catroid.content.bricks.MoveNStepsBrick;
 import org.catrobat.catroid.content.bricks.NextLookBrick;
 import org.catrobat.catroid.content.bricks.NoteBrick;
+import org.catrobat.catroid.content.bricks.OpenUrlBrick;
 import org.catrobat.catroid.content.bricks.PaintNewLookBrick;
 import org.catrobat.catroid.content.bricks.ParameterizedBrick;
 import org.catrobat.catroid.content.bricks.PauseForBeatsBrick;
@@ -126,6 +128,7 @@ import org.catrobat.catroid.content.bricks.PhiroMotorStopBrick;
 import org.catrobat.catroid.content.bricks.PhiroPlayToneBrick;
 import org.catrobat.catroid.content.bricks.PhiroRGBLightBrick;
 import org.catrobat.catroid.content.bricks.PlaceAtBrick;
+import org.catrobat.catroid.content.bricks.PlayDrumForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlayNoteForBeatsBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundAndWaitBrick;
 import org.catrobat.catroid.content.bricks.PlaySoundBrick;
@@ -173,6 +176,7 @@ import org.catrobat.catroid.content.bricks.SetVelocityBrick;
 import org.catrobat.catroid.content.bricks.SetVolumeToBrick;
 import org.catrobat.catroid.content.bricks.SetXBrick;
 import org.catrobat.catroid.content.bricks.SetYBrick;
+import org.catrobat.catroid.content.bricks.SewUpBrick;
 import org.catrobat.catroid.content.bricks.ShowBrick;
 import org.catrobat.catroid.content.bricks.ShowTextBrick;
 import org.catrobat.catroid.content.bricks.ShowTextColorSizeAlignmentBrick;
@@ -266,6 +270,7 @@ public class BrickCategoryTest {
 						RunningStitchBrick.class,
 						ZigZagStitchBrick.class,
 						TripleStitchBrick.class,
+						SewUpBrick.class,
 						StopRunningStitchBrick.class,
 						WriteEmbroideryToFileBrick.class)},
 				{"Event", Arrays.asList(WhenStartedBrick.class,
@@ -312,8 +317,10 @@ public class BrickCategoryTest {
 						FlashBrick.class,
 						LookRequestBrick.class,
 						PaintNewLookBrick.class,
+						EditLookBrick.class,
 						CopyLookBrick.class,
-						DeleteLookBrick.class)},
+						DeleteLookBrick.class,
+						OpenUrlBrick.class)},
 				{"Pen", Arrays.asList(PenDownBrick.class,
 						PenUpBrick.class,
 						SetPenSizeBrick.class,
@@ -333,6 +340,7 @@ public class BrickCategoryTest {
 						SetListeningLanguageBrick.class,
 						SetInstrumentBrick.class,
 						PlayNoteForBeatsBrick.class,
+						PlayDrumForBeatsBrick.class,
 						SetTempoBrick.class,
 						ChangeTempoByNBrick.class,
 						PauseForBeatsBrick.class)},
@@ -359,7 +367,8 @@ public class BrickCategoryTest {
 						BroadcastWaitBrick.class,
 						TapAtBrick.class,
 						TapForBrick.class,
-						TouchAndSlideBrick.class)},
+						TouchAndSlideBrick.class,
+						OpenUrlBrick.class)},
 				{"Data", Arrays.asList(SetVariableBrick.class,
 						ChangeVariableBrick.class,
 						ShowTextBrick.class,
@@ -387,6 +396,7 @@ public class BrickCategoryTest {
 						WhenTouchDownBrick.class,
 						WebRequestBrick.class,
 						LookRequestBrick.class,
+						OpenUrlBrick.class,
 						VibrationBrick.class,
 						SpeakBrick.class,
 						SpeakAndWaitBrick.class,
